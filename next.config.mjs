@@ -7,6 +7,12 @@ const nextConfig = {
                 hostname:'us-west-2.graphassets.com',
                 port:'',
                 pathname:'/**'
+            },
+            {
+                protocol:'https',
+                hostname:'img.clerk.com',
+                port:'',
+                pathname:'/**'
             }
         ]
     }

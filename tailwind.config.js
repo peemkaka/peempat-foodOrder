@@ -22,7 +22,7 @@ module.exports = {
   			primary: {
   				DEFAULT: '#3C552D',
   			},
-  			sencondary: '#CA7373',
+  			secondary: '#CA7373',
   			accent: {
   				DEFAULT: '#D7B26D',
   				HOVER: '#EEE2B5',
