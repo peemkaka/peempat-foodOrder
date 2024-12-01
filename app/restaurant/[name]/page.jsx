@@ -1,9 +1,9 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 import GlobalApi from '@/utils/GlobalApi'
-import Intro from '@/components/restaurant/Intro'
+import Intro from '../../../components/Restaurant/Intro'
 import { usePathname } from 'next/navigation'
-import RestroTabs from '@/components/restaurant/RestroTabs'
+import RestroTabs from '../../../components/Restaurant/RestroTabs'
 const RestaurantDetails = () => {
 
   const param = usePathname();
