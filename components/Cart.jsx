@@ -2,9 +2,9 @@ import { X } from 'lucide-react'
 import Image from 'next/image'
 import React, { useContext } from 'react'
 import { Button } from './ui/button'
-import GlobalApi from '@/utils/GlobalApi'
+import GlobalApi from '../utils/GlobalApi'
 import { toast } from 'sonner'
-import { CartUpdateContext } from '@/context/CartUpdateContext'
+import { CartUpdateContext } from '../context/CartUpdateContext'
 import Link from 'next/link'
 
 const Cart = ({cart}) => {

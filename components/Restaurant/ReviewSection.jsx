@@ -1,11 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "../../components/ui/textarea";
 import { Rating as ReactRating } from "@smastrom/react-rating";
 import { Button } from "../ui/button";
 import { useUser } from "@clerk/nextjs";
-import GlobalApi from "@/utils/GlobalApi";
-import ReviewList from "@/components/Restaurant/ReviewList";
+import GlobalApi from "../../utils/GlobalApi";
+import ReviewList from "../../components/Restaurant/ReviewList";
 import { toast } from "sonner";
 
 function ReviewSection({ restaurant }) {

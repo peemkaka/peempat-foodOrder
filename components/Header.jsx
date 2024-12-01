@@ -4,14 +4,14 @@ import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from "@/components/ui/popover"
+} from "../components/ui/popover"
 import { Ham, Search, ShoppingCart } from 'lucide-react';
 import { Button } from './ui/button';
 import { SignInButton, SignOutButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
 import Link from 'next/link';
-import { CartUpdateContext } from '@/context/CartUpdateContext';
-import GlobalApi from '@/utils/GlobalApi';
-import Cart from '@/components/Cart';
+import { CartUpdateContext } from '../context/CartUpdateContext';
+import GlobalApi from '../utils/GlobalApi';
+import Cart from '../components/Cart';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -19,7 +19,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-  } from "@/components/ui/dropdown-menu"
+  } from "../components/ui/dropdown-menu"
   
 
 
