@@ -18,7 +18,7 @@ const jetbrainsMono = JetBrains_Mono({
 export default function RootLayout({ children }) {
   const [updateCart, setUpdateCart] = useState();
   return (
-    <ClerkProvider>
+    <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
       <PayPalScriptProvider options={{
           clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
           currency: 'THB'  // Add the currency here
