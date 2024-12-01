@@ -1,6 +1,6 @@
 "use client"
 
-import GlobalApi from '@/utils/GlobalApi'
+import GlobalApi from '../utils/GlobalApi'
 import { useSearchParams } from 'next/navigation'
 import React, { Suspense, useEffect, useState } from 'react'
 import BusinessItem from './BusinessItem'

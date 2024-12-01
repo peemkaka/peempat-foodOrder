@@ -1,10 +1,10 @@
 "use client";
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { Suspense, useContext, useEffect, useState } from 'react';
-import { Input } from '@/components/ui/Input'
-import GlobalApi from '@/utils/GlobalApi';
+import { Input } from '../../components/ui/input'
+import GlobalApi from '../../utils/GlobalApi';
 import { useUser } from '@clerk/nextjs';
-import { CartUpdateContext } from '@/context/CartUpdateContext';
+import { CartUpdateContext } from '../../context/CartUpdateContext';
 import { toast } from 'sonner';
 import { PayPalButtons } from '@paypal/react-paypal-js';
 import { Loader } from 'lucide-react';

@@ -1,4 +1,4 @@
-import CategoryList from "@/components/CategoryList";
+import CategoryList from "../components/CategoryList";
 import BusinessList from "../components/BusinessList";
 
 export default function Home() {

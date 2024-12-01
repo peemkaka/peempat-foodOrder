@@ -2,7 +2,7 @@
 import { UserButton, UserProfile, useUser } from '@clerk/nextjs'
 import { ShoppingBag } from 'lucide-react';
 import React from 'react'
-import MyOrders from "@/components/MyOrders";
+import MyOrders from "../../../components/MyOrders";
 
 function User() {
     const { user, isSignedIn } = useUser();
