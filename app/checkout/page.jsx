@@ -1,16 +1,17 @@
 "use client";
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { Suspense, useContext, useEffect, useState } from 'react';
 import { Input } from '@/components/ui/Input'
 import GlobalApi from '@/utils/GlobalApi';
 import { useUser } from '@clerk/nextjs';
 import { CartUpdateContext } from '@/context/CartUpdateContext';
-import { Loader } from 'lucide-react';
 import { toast } from 'sonner';
+import { PayPalButtons } from '@paypal/react-paypal-js';
+import { Loader } from 'lucide-react';
 function Checkout() {
   const params = useSearchParams();
   const { user } = useUser();
-  const { updateCart,setUpdateCart } = useContext(CartUpdateContext);
+  const { updateCart, setUpdateCart } = useContext(CartUpdateContext);
   const [cart, setCart] = useState([]);
   const [subTotal, setSubtotal] = useState(0);
   const [deliveryAmount, setDeliveryAmount] = useState(5);
@@ -23,7 +24,8 @@ function Checkout() {
   const [zip, setZip] = useState("");
   const [address, setAddress] = useState("");
 
-  const [loading,setIsLoading] = useState(false);
+  const [loading, setIsLoading] = useState(false);
+  const router = useRouter();   
 
 
   useEffect(() => {
@@ -61,31 +63,72 @@ function Checkout() {
   const addToOrder = () => {
     setIsLoading(true)
     const data = {
-      email:email,
-      orderAmount:total,
-      restaurantName:params.get('restaurant'),
-      userName:userName,
-      phone:phone,
-      address:address,
-      zipCode:zip
+      email: user?.primaryEmailAddress?.emailAddress,
+      orderAmount: total,
+      restaurantName: params.get('restaurant'),
+      userName: user?.fullName,
+      phone: "0830679249",
+      address: "206/40",
+      zipCode: "85000"
     }
-    // console.log(data)
-    GlobalApi.CreateNewOrder(data).then(resp=>{
+    console.log(data)
+    GlobalApi.CreateNewOrder(data).then(resp => {
       const resultId = resp?.createOrder?.id;
-      if(resultId){
-        cart.forEach((item)=>{
-          return GlobalApi.UpdateOrderToAddOrderItems(item.productName,item.price,resultId,email).then(result=>{
-            console.log(result)
+      if (resultId) {
+        cart.forEach((item) => {
+          return GlobalApi.UpdateOrderToAddOrderItems(item.productName, item.price, resultId, email).then(result => {
             setIsLoading(false)
             toast('Order Created Successfully')
             setUpdateCart(!updateCart)
           })
         })
       }
-    },(error)=>{
+    }, (error) => {
       setIsLoading(false)
     })
+    onSendEmail(data);
   }
+
+  const onSendEmail = async (result) => {
+  
+    const formData = new FormData();
+  
+    // Manually append each key-value pair to the FormData
+    for (const key in result) {
+      if (result.hasOwnProperty(key)) {
+        formData.append(key, result[key]);
+      }
+    }
+  
+    // Adding the access key
+    formData.append("access_key", "7a58070b-e8d1-4909-963b-906dba7b12ea");
+  
+    // Create an object from the formData
+    const object = Object.fromEntries(formData.entries());
+    const json = JSON.stringify(object);
+  
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+          Accept: "application/json",
+        },
+        body: json,
+      });
+  
+      const data = await response.json();
+  
+      if (data.success) {
+        toast('Email Sending Successfully');
+      } else {
+        console.log("Error", data);
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  };
+  
 
   return (
     <div className=" container text-black mt-10">
@@ -166,6 +209,28 @@ function Checkout() {
               >
                 { loading ? <Loader className='animate-spin'/> : 'Make Payment'}
               </button>
+              <div className='mt-4'>
+                {total>5&&<PayPalButtons
+                  style={{ layout: "horizontal" }}
+                  disabled={!(userName && email && address && zip) || loading}
+                  onApprove={async () => {
+                    addToOrder();  // Call your original addToOrder function
+                    GlobalApi.DeleteCartAfterPayment(user?.primaryEmailAddress?.emailAddress); // Add this line to delete the cart after payment
+                  }}
+                  createOrder={(data,action)=>{
+                    return action.order.create({
+                      purchase_units:[
+                        {
+                          amount:{
+                            value:total.toFixed(2),
+                            currency_code:'THB'
+                          }
+                        }
+                      ]
+                    })
+                  }}
+                />}
+              </div>
             </div>
           </div>
           {/* Right Section */}

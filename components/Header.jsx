@@ -7,11 +7,21 @@ import {
 } from "@/components/ui/popover"
 import { Ham, Search, ShoppingCart } from 'lucide-react';
 import { Button } from './ui/button';
-import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
+import { SignInButton, SignOutButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import { CartUpdateContext } from '@/context/CartUpdateContext';
 import GlobalApi from '@/utils/GlobalApi';
 import Cart from '@/components/Cart';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+  } from "@/components/ui/dropdown-menu"
+  
+
 
 const Header = () => {
     const { user, isSignedIn } = useUser();
@@ -55,12 +65,6 @@ const Header = () => {
                         <h1 className='text-3xl font-bold'>Food<span className='text-secondary'>Order</span></h1>
                     </div>
                 </Link>
-                <div className='hidden md:flex items-center border p-2 rounded bg-gray-200 w-96'>
-                    <input type="text" className='w-full bg-transparent outline-none text-primary text-xl' />
-                    <button>
-                        <Search className='text-sencondary' />
-                    </button>
-                </div>
                 {isSignedIn ? (
                     <div className='flex items-center gap-4 cursor-pointer'>
                         <Popover>
@@ -69,11 +73,26 @@ const Header = () => {
                                 <label className='p-1 px-5 rounded-full bg-slate-200 text-primary font-semibold'>{cart?.length}</label>
                             </div></PopoverTrigger>
                             <PopoverContent className="w-full">
-                                <Cart cart={cart}/>
+                                <Cart cart={cart} />
                             </PopoverContent>
                         </Popover>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger className='flex'><UserButton /></DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem>
+                                    <Link href={'user'}>
+                                        Profile
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <SignOutButton>Logout</SignOutButton>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
 
-                        <UserButton />
+
                     </div>
                 ) : (
                     <div className='gap-4 flex'>

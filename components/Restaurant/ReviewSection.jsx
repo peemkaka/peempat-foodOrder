@@ -13,10 +13,9 @@ function ReviewSection({ restaurant }) {
     const [reviewText, setReviewText] = useState("");
     const [reviewList, setReviewList] = useState([]);
     const { user } = useUser();
-
     useEffect(() => {
         getReviewList();
-    }, [restaurant,reviewList]);
+    }, [restaurant]);
 
     const handleSubmit = () => {
         const data = {
@@ -45,13 +44,14 @@ function ReviewSection({ restaurant }) {
     const getReviewList = () => {
         GlobalApi.GetRestaurantReviews(restaurant.slug)
             .then((resp) => {
-                console.log(resp);
+                console.log('API Response:', resp);
                 setReviewList(resp?.reviews || []); // Fallback to empty array if no reviews
             })
             .catch((error) => {
                 console.error("Error fetching reviews:", error);
             });
     };
+    
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 mt-10 gap-10">
@@ -66,13 +66,13 @@ function ReviewSection({ restaurant }) {
                     value={reviewText}
                     onChange={(e) => setReviewText(e.target.value)}
                 />
-                <Button
+                {user&&<Button
                     disabled={rating === 0 || !rating}
                     onClick={handleSubmit}
                     className="bg-primary text-white hover:bg-primary/80 font-bold"
                 >
                     Submit
-                </Button>
+                </Button>}
             </div>
             <div className="col-span-2">
                 <ReviewList reviewList={reviewList} />

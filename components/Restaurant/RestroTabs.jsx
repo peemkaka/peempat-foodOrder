@@ -14,7 +14,11 @@ function RestroTabs({restaurant}) {
   <TabsContent value="category">
     <MenuSection restaurant={restaurant}/>
   </TabsContent>
-  <TabsContent value="about">About</TabsContent>
+  <TabsContent value="about">
+    <div className='text-primary font-bold text-xl'>
+        <h3 className='pt-2'>{restaurant.aboutUs}</h3>
+    </div>
+  </TabsContent>
   <TabsContent value="reviews">
     <ReviewSection restaurant={restaurant}/>
   </TabsContent>

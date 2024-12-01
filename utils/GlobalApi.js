@@ -193,7 +193,7 @@ const AddNewReview = async (data) => {
 const GetRestaurantReviews = async (slug) => {
   const query = gql`
     query RestaurantReview {
-    reviews(where: {restaurant: {slug: "`+ slug + `"}},orderBy: publishedAt_DESC) {
+    reviews(where: {restaurant: {slug: "`+slug+`"}}, orderBy: publishedAt_DESC) {
     email
     id
     profileImage
@@ -202,7 +202,7 @@ const GetRestaurantReviews = async (slug) => {
     star
     reviewText
   }
-  }
+}
   `
   // console.log(query)
   const result = await request(MASTER_URL, query);
@@ -253,6 +253,45 @@ const UpdateOrderToAddOrderItems = async (name, price, id,email) => {
   return result;
 }
 
+const DeleteCartAfterPayment = async (email) => {
+  const query = gql`
+    mutation DeleteCart {
+      deleteManyUserCarts(where: { email: "` + email + `" }) {
+        count
+      }
+    }
+  `;
+  const result = await client.request(query);
+  return result;
+};
+
+const GetUserOrders= async(email)=>{
+  const query = gql`
+  query UserOrders {
+  orders(where: {email: "`+email+`"}) {
+    address
+    createdAt
+    email
+    id
+    orderAmount
+    orderDetail {
+      ... on OrderItem {
+        id
+        name
+        price
+      }
+    }
+    phone
+    restaurantName
+    userName
+    zipCode
+  }
+}
+  `
+  const result = await client.request(query);
+  return result;
+}
+
 
 export default {
   GetCategory,
@@ -265,5 +304,7 @@ export default {
   AddNewReview,
   GetRestaurantReviews,
   CreateNewOrder,
-  UpdateOrderToAddOrderItems
+  UpdateOrderToAddOrderItems,
+  DeleteCartAfterPayment,
+  GetUserOrders
 }

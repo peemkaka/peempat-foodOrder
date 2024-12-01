@@ -84,10 +84,10 @@ function MenuSection({ restaurant }) {
                     <h2 className="font-bold text-lg">{item.name}</h2>
                     <h2>{item.price}</h2>
                     <h2 className="text-sm text-gray-500 line-clamp-2">{item.description}</h2>
-                    <SquarePlus
+                    {user&&<SquarePlus
                       className={`cursor-pointer ${loading ? 'opacity-50 pointer-events-none' : ''}`}
                       onClick={() => addToCartHandler(item)}
-                    />
+                    />}
                   </div>
                 </div>
               ))}

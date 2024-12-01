@@ -15,4 +15,8 @@
   .h3{
     @apply text-[20px] xl:text-[80px] leading-[1.1] font-semibold;
   }
+  .paypal-button-tagline {
+    display: none !important;
+  }
 }
+
