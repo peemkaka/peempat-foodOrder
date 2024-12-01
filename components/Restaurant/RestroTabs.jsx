@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs"
-import MenuSection from '../../components/restaurant/MenuSection'
-import ReviewSection from '../../components/restaurant/ReviewSection'
+import MenuSection from './MenuSection'
+import ReviewSection from './ReviewSection'
 
 function RestroTabs({restaurant}) {
   return (
