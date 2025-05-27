@@ -193,11 +193,12 @@ const AddNewReview = async (data) => {
 const GetRestaurantReviews = async (slug) => {
   const query = gql`
     query RestaurantReview {
-    reviews(where: {restaurant: {slug: "`+slug+`"}}, orderBy: publishedAt_DESC) {
+    reviews(where: {restaurant: {slug: "`+slug+`"}}, orderBy: updatedAt_DESC) {
     email
     id
     profileImage
     publishedAt
+    updatedAt
     userName
     star
     reviewText

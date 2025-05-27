@@ -21,7 +21,7 @@ function ReviewList({ reviewList }) {
                             isDisabled={true}
                              />
                         <h2 className=''>
-                            <span className='font-bold'>{review.reviewText}</span> at {moment(review.publishedAt).format('DD-MMM-yyyy')}
+                            <span className='font-bold'>{review.reviewText}</span> at {moment(review.updatedAt).format('DD-MMM-yyyy')}
                         </h2>
                     </div>
                 </div>
