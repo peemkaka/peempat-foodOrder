@@ -9,13 +9,14 @@ import BusinessSkeletion from './BusinessSkeletion'
 
 const BusinessList = () => {
     const params = useSearchParams()
-    const [category,setCategoryList] = useState();
+    const [category,setCategoryList] = useState('all');
     const [businessList,setBusinessList] = useState([]);
     const [loading,setLoading] = useState(false);
 
     useEffect(()=>{
-        params && setCategoryList(params.get('category'))
-        params && getBusinessList(params.get('category'));
+        const categoryParam = params?.get('category') || 'all';
+        params && setCategoryList(categoryParam)
+        params && getBusinessList(categoryParam);
     },[params])
 
     const getBusinessList = (category_) => {
