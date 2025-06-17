@@ -1,7 +1,7 @@
-const { gql, default: request, GraphQLClient } = require("graphql-request");
+import { gql, request, GraphQLClient } from "graphql-request";
 
-const MASTER_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-const APT_TOKEN = process.env.NEXT_PUBLIC_BACKEND_API_URL_TOKEN;
+const MASTER_URL = process.env.HYGRAPH_API_URL;
+const APT_TOKEN = process.env.HYGRAPH_API_TOKEN;
 // Used to make get Category API request
 
 const client = new GraphQLClient(MASTER_URL, {
@@ -293,8 +293,7 @@ const GetUserOrders= async(email)=>{
   return result;
 }
 
-
-export default {
+const api = {
   GetCategory,
   GetBusiness,
   GetBusinessDetail,
@@ -308,4 +307,6 @@ export default {
   UpdateOrderToAddOrderItems,
   DeleteCartAfterPayment,
   GetUserOrders
-}
+};
+
+export default api;

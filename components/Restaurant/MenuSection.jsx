@@ -25,25 +25,32 @@ function MenuSection({ restaurant }) {
     console.log('Filtered menu items:', result);
   };
 
-  const addToCartHandler = (item) => {
+  const addToCartHandler = async (item) => {
     const data = {
       email: user?.primaryEmailAddress?.emailAddress,
       productName: item?.name,
       productDescription: item?.description,
       productImage: item?.productImage?.url,
       price: item?.price,
-      restaurantSlug : restaurant.slug
+      restaurantSlug: restaurant.slug,
     };
 
-    GlobalApi.AddToCart(data)
-      .then((resp) => {
+    try {
+      const res = await fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
         setUpdateCart(!updateCart);
         toast.success("Added to Cart");
-      })
-      .catch((error) => {
-        console.error("AddToCart Error:", error);
+      } else {
         toast.error("Error while adding to the cart");
-      });
+      }
+    } catch (error) {
+      console.error("AddToCart Error:", error);
+      toast.error("Error while adding to the cart");
+    }
   };
   
   return (

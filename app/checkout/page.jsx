@@ -1,13 +1,13 @@
 "use client";
-import { useRouter, useSearchParams } from 'next/navigation';
-import React, { Suspense, useContext, useEffect, useState } from 'react';
-import { Input } from '../../components/ui/input'
-import GlobalApi from '../../utils/GlobalApi';
-import { useUser } from '@clerk/nextjs';
-import { CartUpdateContext } from '../../context/CartUpdateContext';
-import { toast } from 'sonner';
-import { PayPalButtons } from '@paypal/react-paypal-js';
-import { Loader } from 'lucide-react';
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { Suspense, useContext, useEffect, useState } from "react";
+import { Input } from "../../components/ui/input";
+import GlobalApi from "../../utils/GlobalApi";
+import { useUser } from "@clerk/nextjs";
+import { CartUpdateContext } from "../../context/CartUpdateContext";
+import { toast } from "sonner";
+import { PayPalButtons } from "@paypal/react-paypal-js";
+import { Loader } from "lucide-react";
 function Checkout() {
   const params = useSearchParams();
   const { user } = useUser();
@@ -25,88 +25,109 @@ function Checkout() {
   const [address, setAddress] = useState("");
 
   const [loading, setIsLoading] = useState(false);
-  const router = useRouter();   
-
+  const router = useRouter();
 
   useEffect(() => {
-    console.log(params.get('restaurant'))
-    user && GetUserCartHandler(user?.primaryEmailAddress?.emailAddress);
-  }, [user || updateCart])
+    if (user?.primaryEmailAddress?.emailAddress) {
+      GetUserCartHandler(user.primaryEmailAddress.emailAddress);
+    }
+  }, [user, updateCart]);
 
-  const GetUserCartHandler = (email) => {
-    GlobalApi.GetUserCart(email)
-      .then((resp) => {
-        console.log('Fetched cart:', resp);
-        if (resp && resp.userCarts) {
-          setCart(resp.userCarts);  // Update the cart state with the fetched data
-          calculateTotalAmount(resp.userCarts);
-        } else {
-          console.log('No cart data found');
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching cart:', error);
-      });
-
+  const GetUserCartHandler = async (email) => {
+    try {
+      const res = await fetch(`/api/cart?email=${encodeURIComponent(email)}`);
+      const resp = await res.json();
+      if (resp && resp.userCarts) {
+        setCart(resp.userCarts);
+        calculateTotalAmount(resp.userCarts);
+      } else {
+        setCart([]);
+        setSubtotal(0);
+        setTaxAmount(0);
+        setTotal(0);
+      }
+    } catch (error) {
+      setCart([]);
+      setSubtotal(0);
+      setTaxAmount(0);
+      setTotal(0);
+    }
   };
 
   const calculateTotalAmount = (cart_) => {
-    let total = 0
+    let total = 0;
     cart_.forEach((item) => {
-      return total = total + item.price;
-    })
-    setSubtotal(total.toFixed(2))
+      return (total = total + item.price);
+    });
+    setSubtotal(total.toFixed(2));
     setTaxAmount(total * 0.09);
-    setTotal(total + total * 0.09 + deliveryAmount)
-  }
+    setTotal(total + total * 0.09 + deliveryAmount);
+  };
 
-  const addToOrder = () => {
-    setIsLoading(true)
+  const addToOrder = async () => {
+    setIsLoading(true);
     const data = {
       email: user?.primaryEmailAddress?.emailAddress,
       orderAmount: total,
-      restaurantName: params.get('restaurant'),
-      userName: user?.fullName,
-      phone: "0830679249",
-      address: "206/40",
-      zipCode: "85000"
-    }
-    console.log(data)
-    GlobalApi.CreateNewOrder(data).then(resp => {
+      restaurantName: params.get("restaurant"),
+      userName: userName,
+      phone: phone,
+      address: address,
+      zipCode: zip,
+    };
+
+    try {
+      // สร้าง order ใหม่
+      const res = await fetch("/api/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const resp = await res.json();
       const resultId = resp?.createOrder?.id;
       if (resultId) {
-        cart.forEach((item) => {
-          return GlobalApi.UpdateOrderToAddOrderItems(item.productName, item.price, resultId, email).then(result => {
-            setIsLoading(false)
-            toast('Order Created Successfully')
-            setUpdateCart(!updateCart)
-          })
-        })
+        // เพิ่ม order item ทีละชิ้น
+        for (const item of cart) {
+          await fetch("/api/order", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: item.productName,
+              price: item.price,
+              id: resultId,
+              email: data.email,
+            }),
+          });
+        }
+        setIsLoading(false);
+        toast("Order Created Successfully");
+        setUpdateCart((prev) => !prev);
       }
-    }, (error) => {
-      setIsLoading(false)
-    })
+    } catch (error) {
+      setIsLoading(false);
+      toast("Error creating order");
+    }
+
     onSendEmail(data);
-  }
+  };
 
   const onSendEmail = async (result) => {
-  
     const formData = new FormData();
-  
+
     // Manually append each key-value pair to the FormData
     for (const key in result) {
       if (result.hasOwnProperty(key)) {
         formData.append(key, result[key]);
       }
     }
-  
+
     // Adding the access key
     formData.append("access_key", "7a58070b-e8d1-4909-963b-906dba7b12ea");
-  
+
     // Create an object from the formData
     const object = Object.fromEntries(formData.entries());
     const json = JSON.stringify(object);
-  
+
     try {
       const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
@@ -116,19 +137,18 @@ function Checkout() {
         },
         body: json,
       });
-  
+
       const data = await response.json();
-  
+
       if (data.success) {
-        toast('Email Sending Successfully');
+        toast("Email Sending Successfully");
       } else {
         console.log("Error", data);
       }
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
     }
   };
-  
 
   return (
     <div className=" container text-black mt-10">
@@ -141,9 +161,11 @@ function Checkout() {
                 Billing Details
                 <span className="mt-2 block h-1 w-10 bg-primary sm:w-20"></span>
               </h1>
-              <div className='flex flex-col gap-2'>
+              <div className="flex flex-col gap-2">
                 <div>
-                  <label className="text-xs font-semibold text-gray-500 mt-2">Name</label>
+                  <label className="text-xs font-semibold text-gray-500 mt-2">
+                    Name
+                  </label>
                   <Input
                     onChange={(e) => setUserName(e.target.value)}
                     placeholder="name"
@@ -199,37 +221,45 @@ function Checkout() {
               {/* Add more form fields */}
               <p className="mt-10 text-center text-sm font-semibold text-gray-500">
                 By placing this order you agree to the{" "}
-                <a href="#" className="whitespace-nowrap text-primary underline hover:text-primary">
+                <a
+                  href="#"
+                  className="whitespace-nowrap text-primary underline hover:text-primary"
+                >
                   Terms and Conditions
                 </a>
               </p>
               <button
                 onClick={() => addToOrder()}
                 className="mt-4 inline-flex w-full items-center justify-center rounded hover:bg-primary/80 bg-primary py-2.5 px-4 text-base font-semibold tracking-wide text-white text-opacity-80 outline-none ring-offset-2 transition hover:text-opacity-100 focus:ring-2 focus:ring-primary sm:text-lg"
+                disabled={loading || cart.length === 0 || total <= 0}
               >
-                { loading ? <Loader className='animate-spin'/> : 'Make Payment'}
+                {loading ? <Loader className="animate-spin" /> : "Make Payment"}
               </button>
-              <div className='mt-4'>
-                {total>5&&<PayPalButtons
-                  style={{ layout: "horizontal" }}
-                  disabled={!(userName && email && address && zip) || loading}
-                  onApprove={async () => {
-                    addToOrder();  // Call your original addToOrder function
-                    GlobalApi.DeleteCartAfterPayment(user?.primaryEmailAddress?.emailAddress); // Add this line to delete the cart after payment
-                  }}
-                  createOrder={(data,action)=>{
-                    return action.order.create({
-                      purchase_units:[
-                        {
-                          amount:{
-                            value:total.toFixed(2),
-                            currency_code:'THB'
-                          }
-                        }
-                      ]
-                    })
-                  }}
-                />}
+              <div className="mt-4">
+                {total > 5 && (
+                  <PayPalButtons
+                    style={{ layout: "horizontal" }}
+                    disabled={!(userName && email && address && zip) || loading}
+                    onApprove={async () => {
+                      addToOrder(); // Call your original addToOrder function
+                      GlobalApi.DeleteCartAfterPayment(
+                        user?.primaryEmailAddress?.emailAddress
+                      ); // Add this line to delete the cart after payment
+                    }}
+                    createOrder={(data, action) => {
+                      return action.order.create({
+                        purchase_units: [
+                          {
+                            amount: {
+                              value: total.toFixed(2),
+                              currency_code: "THB",
+                            },
+                          },
+                        ],
+                      });
+                    }}
+                  />
+                )}
               </div>
             </div>
           </div>

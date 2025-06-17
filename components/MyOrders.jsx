@@ -17,12 +17,15 @@ function MyOrders() {
         user && GetUserOrders();
     }, [user])
 
-    const GetUserOrders = () => {
-        GlobalApi.GetUserOrders(user?.primaryEmailAddress.emailAddress).then(resp => {
-            // console.log(resp?.orders)
-            setOrderList(resp?.orders)
-        })
-    }
+    const GetUserOrders = async () => {
+        try {
+            const res = await fetch(`/api/order?email=${encodeURIComponent(user?.primaryEmailAddress.emailAddress)}`);
+            const resp = await res.json();
+            setOrderList(resp?.orders || []);
+        } catch (error) {
+            setOrderList([]);
+        }
+    };
 
     return (
         <div>

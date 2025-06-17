@@ -16,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export default function RootLayout({ children }) {
-  const [updateCart, setUpdateCart] = useState();
+  const [updateCart, setUpdateCart] = useState([]);
   return (
     <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
       <PayPalScriptProvider options={{

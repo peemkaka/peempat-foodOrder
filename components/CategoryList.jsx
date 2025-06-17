@@ -37,11 +37,14 @@ const CategoryList = () => {
         }
     };
 
-    const getCategoryList = () => {
-        GlobalApi.GetCategory().then((resp) => {
-            console.log("Array = ", resp);
+    const getCategoryList = async () => {
+        try {
+            const res = await fetch('/api/category');
+            const resp = await res.json();
             setCategoryList(resp.categories);
-        });
+        } catch (error) {
+            setCategoryList([]);
+        }
     };
 
     return (
