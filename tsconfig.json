@@ -1,17 +1,13 @@
 {
   "compilerOptions": {
-    "paths": {
-      "@/*": ["./*"],
-    },
-    "target": "ES2017",
+    "target": "esnext",
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
-    "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
     "noEmit": true,
     "incremental": true,
     "module": "esnext",
@@ -20,18 +16,24 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
     "plugins": [
       {
         "name": "next"
       }
-    ]
+    ],
+    "allowJs": true
   },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-, "app/(auth)/sign-up/[[...sign-up]]/page.jsx"  ],
+, "utils/GlobalApi.js", "app/api/category/route.js", "app/api/business/route.js", "app/api/business/[slug]/route.js", "app/api/cart/route.js"  ],
   "exclude": [
     "node_modules"
   ]

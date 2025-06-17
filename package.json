@@ -9,6 +9,7 @@
     "lint": "next lint",
     "email": "email dev"
   },
+  "type": "module",
   "dependencies": {
     "@clerk/nextjs": "^6.5.1",
     "@paypal/react-paypal-js": "^8.7.0",
