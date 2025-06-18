@@ -8,23 +8,27 @@ const Intro = ({ restaurant }) => {
   const [avgRating, setAvgRating] = useState(0);
 
   useEffect(() => {
-    if (restaurant && Array.isArray(restaurant.review)) {
-      CalculateRating();
+    if (restaurant?.slug) {
+      fetchReviewList();
     }
-  }, [restaurant]);
+  }, [restaurant?.slug]);
 
-  const CalculateRating = () => {
-    let total = 0;
-    let count = 0;
-
-    restaurant.review.forEach((item) => {
-      total += item.star;
-      count++;
-    });
-
-    setTotalRating(count);
-    const result = count > 0 ? total / count : 0;
-    setAvgRating(result ? result.toFixed(1) : 4.5);
+  const fetchReviewList = async () => {
+    try {
+      const res = await fetch(`/api/review/${restaurant.slug}`);
+      const resp = await res.json();
+      const reviews = resp?.reviews || [];
+      let total = 0;
+      let count = reviews.length;
+      reviews.forEach((item) => {
+        total += item.star;
+      });
+      setTotalRating(count);
+      setAvgRating(count > 0 ? (total / count).toFixed(1) : 4.5);
+    } catch (error) {
+      setTotalRating(0);
+      setAvgRating(4.5);
+    }
   };
 
   return (

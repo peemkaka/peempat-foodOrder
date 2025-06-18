@@ -293,6 +293,46 @@ const GetUserOrders= async(email)=>{
   return result;
 }
 
+// ลบคอมเม้น (review) ตาม id
+const DeleteReviewById = async (id) => {
+  const query = gql`
+    mutation DeleteReview {
+      deleteReview(where: {id: "${id}"}) {
+        id
+      }
+      publishManyReviews(to: PUBLISHED) {
+        count
+      }
+    }
+  `;
+  const result = await client.request(query);
+  return result;
+};
+
+// แก้ไข/อัพเดตคอมเม้น (review) ตาม id
+const UpdateReviewById = async (id, { reviewText, star }) => {
+  const query = gql`
+    mutation UpdateReview {
+      updateReview(
+        data: {
+          reviewText: "${reviewText}"
+          star: ${star}
+        }
+        where: {id: "${id}"}
+      ) {
+        id
+        reviewText
+        star
+      }
+      publishManyReviews(to: PUBLISHED) {
+        count
+      }
+    }
+  `;
+  const result = await client.request(query);
+  return result;
+};
+
 const api = {
   GetCategory,
   GetBusiness,
@@ -306,7 +346,9 @@ const api = {
   CreateNewOrder,
   UpdateOrderToAddOrderItems,
   DeleteCartAfterPayment,
-  GetUserOrders
+  GetUserOrders,
+  DeleteReviewById,
+  UpdateReviewById,
 };
 
 export default api;
