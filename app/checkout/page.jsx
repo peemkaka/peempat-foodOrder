@@ -83,12 +83,18 @@ function Checkout() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
       const resp = await res.json();
       const resultId = resp?.createOrder?.id;
+      
       if (resultId) {
         // เพิ่ม order item ทีละชิ้น
         for (const item of cart) {
-          await fetch("/api/order", {
+          const itemRes = await fetch("/api/order", {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -98,37 +104,69 @@ function Checkout() {
               email: data.email,
             }),
           });
+          
+          if (!itemRes.ok) {
+            throw new Error(`Failed to add item: ${item.productName}`);
+          }
         }
+        
+        // ลบ cart หลังจาก order สำเร็จ
+        await fetch(`/api/order?email=${encodeURIComponent(data.email)}`, {
+          method: "DELETE",
+        });
+        
+        // ส่งอีเมลยืนยัน
+        await onSendEmail(data);
+        
+        // ล้างข้อมูลในฟอร์ม
+        setUserName("");
+        setEmail("");
+        setPhone("");
+        setZip("");
+        setAddress("");
+        setCart([]);
+        setSubtotal(0);
+        setTaxAmount(0);
+        setTotal(0);
+        
+        // อัพเดท state และแสดง toast
         setIsLoading(false);
-        toast("Order Created Successfully");
+        toast("Order Created Successfully!");
         setUpdateCart((prev) => !prev);
+        
+        // รอสักครู่แล้วค่อย redirect
+        setTimeout(() => {
+          router.push('/');
+        }, 1500);
+        
+      } else {
+        throw new Error("Failed to create order - no order ID returned");
       }
     } catch (error) {
+      console.error("Order creation error:", error);
       setIsLoading(false);
-      toast("Error creating order");
+      toast("Error creating order: " + error.message);
     }
-
-    onSendEmail(data);
   };
 
   const onSendEmail = async (result) => {
-    const formData = new FormData();
-
-    // Manually append each key-value pair to the FormData
-    for (const key in result) {
-      if (result.hasOwnProperty(key)) {
-        formData.append(key, result[key]);
-      }
-    }
-
-    // Adding the access key
-    formData.append("access_key", "7a58070b-e8d1-4909-963b-906dba7b12ea");
-
-    // Create an object from the formData
-    const object = Object.fromEntries(formData.entries());
-    const json = JSON.stringify(object);
-
     try {
+      const formData = new FormData();
+
+      // Manually append each key-value pair to the FormData
+      for (const key in result) {
+        if (result.hasOwnProperty(key)) {
+          formData.append(key, result[key]);
+        }
+      }
+
+      // Adding the access key
+      formData.append("access_key", "7a58070b-e8d1-4909-963b-906dba7b12ea");
+
+      // Create an object from the formData
+      const object = Object.fromEntries(formData.entries());
+      const json = JSON.stringify(object);
+
       const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         headers: {
@@ -138,15 +176,22 @@ function Checkout() {
         body: json,
       });
 
+      if (!response.ok) {
+        throw new Error(`Email service error: ${response.status}`);
+      }
+
       const data = await response.json();
 
       if (data.success) {
-        toast("Email Sending Successfully");
+        console.log("Email sent successfully");
+        // Don't show toast here to avoid confusion
       } else {
-        console.log("Error", data);
+        console.error("Email service error:", data);
+        // Don't throw error here to avoid breaking the order flow
       }
     } catch (error) {
       console.error("Error sending email:", error);
+      // Don't throw error here to avoid breaking the order flow
     }
   };
 
@@ -229,13 +274,28 @@ function Checkout() {
                 </a>
               </p>
               <button
-                onClick={() => addToOrder()}
+                onClick={() => {
+                  // Validate required fields
+                  if (!userName || !email || !phone || !address || !zip) {
+                    toast("Please fill in all required fields");
+                    return;
+                  }
+                  
+                  // Validate email format
+                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                  if (!emailRegex.test(email)) {
+                    toast("Please enter a valid email address");
+                    return;
+                  }
+                  
+                  addToOrder();
+                }}
                 className="mt-4 inline-flex w-full items-center justify-center rounded hover:bg-primary/80 bg-primary py-2.5 px-4 text-base font-semibold tracking-wide text-white text-opacity-80 outline-none ring-offset-2 transition hover:text-opacity-100 focus:ring-2 focus:ring-primary sm:text-lg"
                 disabled={loading || cart.length === 0 || total <= 0}
               >
                 {loading ? <Loader className="animate-spin" /> : "Make Payment"}
               </button>
-              <div className="mt-4">
+              {/* <div className="mt-4">
                 {total > 5 && (
                   <PayPalButtons
                     style={{ layout: "horizontal" }}
@@ -260,7 +320,7 @@ function Checkout() {
                     }}
                   />
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
           {/* Right Section */}
