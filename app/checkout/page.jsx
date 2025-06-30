@@ -115,8 +115,6 @@ function Checkout() {
           method: "DELETE",
         });
         
-        // ส่งอีเมลยืนยัน
-        await onSendEmail(data);
         
         // ล้างข้อมูลในฟอร์ม
         setUserName("");
@@ -146,52 +144,6 @@ function Checkout() {
       console.error("Order creation error:", error);
       setIsLoading(false);
       toast("Error creating order: " + error.message);
-    }
-  };
-
-  const onSendEmail = async (result) => {
-    try {
-      const formData = new FormData();
-
-      // Manually append each key-value pair to the FormData
-      for (const key in result) {
-        if (result.hasOwnProperty(key)) {
-          formData.append(key, result[key]);
-        }
-      }
-
-      // Adding the access key
-      formData.append("access_key", "7a58070b-e8d1-4909-963b-906dba7b12ea");
-
-      // Create an object from the formData
-      const object = Object.fromEntries(formData.entries());
-      const json = JSON.stringify(object);
-
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-          Accept: "application/json",
-        },
-        body: json,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Email service error: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        console.log("Email sent successfully");
-        // Don't show toast here to avoid confusion
-      } else {
-        console.error("Email service error:", data);
-        // Don't throw error here to avoid breaking the order flow
-      }
-    } catch (error) {
-      console.error("Error sending email:", error);
-      // Don't throw error here to avoid breaking the order flow
     }
   };
 
