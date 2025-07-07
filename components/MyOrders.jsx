@@ -1,7 +1,7 @@
 import GlobalApi from '@/utils/GlobalApi'
 import { useUser } from '@clerk/nextjs';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
     Accordion,
     AccordionContent,
@@ -13,19 +13,22 @@ import {
 function MyOrders() {
     const { user } = useUser()
     const [orderList, setOrderList] = useState([]);
-    useEffect(() => {
-        user && GetUserOrders();
-    }, [user])
-
-    const GetUserOrders = async () => {
+    
+    const GetUserOrders = useCallback(async () => {
+        if (!user?.primaryEmailAddress?.emailAddress) return;
+        
         try {
-            const res = await fetch(`/api/order?email=${encodeURIComponent(user?.primaryEmailAddress.emailAddress)}`);
+            const res = await fetch(`/api/order?email=${encodeURIComponent(user.primaryEmailAddress.emailAddress)}`);
             const resp = await res.json();
             setOrderList(resp?.orders || []);
         } catch (error) {
             setOrderList([]);
         }
-    };
+    }, [user?.primaryEmailAddress?.emailAddress]); 
+
+    useEffect(() => {
+        GetUserOrders();
+    }, [GetUserOrders]) 
 
     return (
         <div>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Textarea } from "../../components/ui/textarea";
 import { Rating as ReactRating } from "@smastrom/react-rating";
 import { Button } from "../ui/button";
@@ -59,7 +59,7 @@ function ReviewSection({ restaurant }) {
     }
   };
 
-  const getReviewList = async () => {
+  const getReviewList = useCallback(async () => {
     try {
       const res = await fetch(`/api/review/${restaurant.slug}`);
       const resp = await res.json();
@@ -67,7 +67,7 @@ function ReviewSection({ restaurant }) {
     } catch (error) {
       console.error("Error fetching reviews:", error);
     }
-  };
+  }, [restaurant.slug]);
 
   const handleDeleteReview = async (reviewId) => {
     try {
