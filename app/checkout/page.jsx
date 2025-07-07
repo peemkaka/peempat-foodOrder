@@ -2,11 +2,9 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { Suspense, useContext, useEffect, useState } from "react";
 import { Input } from "../../components/ui/input";
-import GlobalApi from "../../utils/GlobalApi";
 import { useUser } from "@clerk/nextjs";
 import { CartUpdateContext } from "../../context/CartUpdateContext";
 import { toast } from "sonner";
-import { PayPalButtons } from "@paypal/react-paypal-js";
 import { Loader } from "lucide-react";
 function Checkout() {
   const params = useSearchParams();
@@ -247,32 +245,6 @@ function Checkout() {
               >
                 {loading ? <Loader className="animate-spin" /> : "Make Payment"}
               </button>
-              {/* <div className="mt-4">
-                {total > 5 && (
-                  <PayPalButtons
-                    style={{ layout: "horizontal" }}
-                    disabled={!(userName && email && address && zip) || loading}
-                    onApprove={async () => {
-                      addToOrder(); // Call your original addToOrder function
-                      GlobalApi.DeleteCartAfterPayment(
-                        user?.primaryEmailAddress?.emailAddress
-                      ); // Add this line to delete the cart after payment
-                    }}
-                    createOrder={(data, action) => {
-                      return action.order.create({
-                        purchase_units: [
-                          {
-                            amount: {
-                              value: total.toFixed(2),
-                              currency_code: "THB",
-                            },
-                          },
-                        ],
-                      });
-                    }}
-                  />
-                )}
-              </div> */}
             </div>
           </div>
           {/* Right Section */}
